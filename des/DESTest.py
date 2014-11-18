@@ -10,6 +10,54 @@ class DESTest(unittest.TestCase):
     def setUp(self):
         pass
 
+    def test_deskey_derived_c_d_2(self):
+        key = DESKey.DESKey("0101010101010110")
+        # 60th bit mapped to 25th in k_plus which is in C
+        expected_bits_set = (25-1,
+                             24-1, 23-1, # two 1's
+                             21-1, 19-1, 17-1, 15-1, 13-1, 11-1, # 6 2's
+                             10-1, # 1 1
+                             8-1, 6-1, 4-1, 2-1, 28-1, 26-1, # 6 2's
+                             25-1 # 1 1
+                             )
+        self.assertTrue(len(expected_bits_set) == 17)
+
+        for i in range(0, len(key.c)):
+            derived_key = key.c[i]
+            for j in range(0, len(derived_key)):
+                item = derived_key[j]
+                if j == expected_bits_set[i]:
+                    self.assertTrue(item)
+                else:
+                    self.assertFalse(item)
+
+        for derived_key in key.d:
+            for item in derived_key:
+                self.assertTrue(item == False)
+                pass
+
+    def test_deskey_derived_c_d(self):
+        key = DESKey.DESKey("0101010101010101")
+        for derived_key in key.c:
+            for item in derived_key:
+                self.assertTrue(item == False)
+        for derived_key in key.d:
+            for item in derived_key:
+                self.assertTrue(item == False)
+
+    def test_deskey_leftshift(self):
+        key = DESKey.DESKey("0101010101010101")
+        tuple1 = (True, False, False, False)
+        actual = key.left_shift(tuple1, 1)
+        expected = (False, False, False, True)
+        self.assertTrue(len(actual) == len(expected))
+        for i in range(0, len(expected)):
+            self.assertTrue(actual[i] == expected[i])
+
+    def test_deskey_c_d_leftshift_tuple(self):
+        key = DESKey.DESKey("0101010101010101")
+        self.assertTrue(len(key.C_D_LEFTSHIFT_TUPLE) == 17, msg='16 iterations + unused')
+
     def test_deskey_kplus_mapping_3(self):
         # http://page.math.tu-berlin.de/~kant/teaching/hess/krypto-ws2006/des.htm
 
