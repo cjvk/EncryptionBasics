@@ -16,23 +16,24 @@ class DESKey():
     def derived_data(self):
         self.m_key_bit_tuple = self.m_hex.hex_string_to_bit_tuple(self.m_key)
         self.k_plus = self.derive_k_plus()
-        # initialize c and d
-        self.c = [None] * 17
-        self.d = [None] * 17
-        self.c[0] = self.k_plus[0:28]
-        self.d[0] = self.k_plus[28:56]
-        self.derive_c_d_1_16()
+        self.c, self.d = self.derive_c_d_1_16()
         pass
     C_D_LEFTSHIFT_TUPLE = ("unused",1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1)
     def derive_c_d_1_16(self):
+        # initializec and d
+        C = [None] * 17
+        D = [None] * 17
+        C[0] = self.k_plus[0:28]
+        D[0] = self.k_plus[28:56]
         for i in range(0, len(self.C_D_LEFTSHIFT_TUPLE)):
             if i == 0:
                 continue
             shift_amount = self.C_D_LEFTSHIFT_TUPLE[i]
-            self.c[i] = self.left_shift(self.c[i-1], shift_amount)
-            self.d[i] = self.left_shift(self.d[i-1], shift_amount)
-        assert(None not in self.c)
-        assert(None not in self.d)
+            C[i] = self.left_shift(C[i-1], shift_amount)
+            D[i] = self.left_shift(D[i-1], shift_amount)
+        assert(None not in C)
+        assert(None not in D)
+        return C, D
     def left_shift(self, bit_tuple, num):
         shifted_tuple = bit_tuple[num:] + bit_tuple[0:num]
         assert(len(bit_tuple) == len(shifted_tuple))
