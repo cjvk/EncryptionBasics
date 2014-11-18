@@ -18,7 +18,32 @@ class DESKey():
         self.k_plus = self.derive_k_plus()
         self.c, self.d = self.derive_c_d_1_16()
         self.cd = self.derive_cd()
+        self.derived_keys = self.derive_keys()
         pass
+    def derive_keys(self):
+        derived_key_dict = {}
+        for i in range(1, 16+1):
+            assert(i in self.cd.keys())
+            derived_key_dict[i] = self.transform_cd_to_key(self.cd[i])
+        return derived_key_dict
+    def transform_cd_to_key(self, cd):
+        assert(len(cd) == 56)
+        derived_key_list = []
+        for index in self.KEY_MAPPING_TUPLE:
+            derived_key_list.append(cd[index-1])
+        return derived_key_list
+    KEY_MAPPING_TUPLE = (
+        # taken from http://page.math.tu-berlin.de/~kant/teaching/hess/krypto-ws2006/des.htm
+        # 8x6 table called "PC-2"
+        14, 17, 11, 24,  1,  5,
+         3, 28, 15,  6, 21, 10,
+        23, 19, 12,  4, 26,  8,
+        16,  7, 27, 20, 13,  2,
+        41, 52, 31, 37, 47, 55,
+        30, 40, 51, 45, 33, 48,
+        44, 49, 39, 56, 34, 53,
+        46, 42, 50, 36, 29, 32
+        )
     def derive_cd(self):
         CD = {}
         for i in range(1, len(self.c)):

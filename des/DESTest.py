@@ -10,6 +10,52 @@ class DESTest(unittest.TestCase):
     def setUp(self):
         pass
 
+    def test_deskey_key_mapping_tuple_2(self):
+        # using same stuff as previous test - since if it is in C
+        # then there will be no offset
+        key = DESKey.DESKey("0101010101010110")
+        # 60th bit mapped to 25th in k_plus which is in C
+        expected_bits_set = (25-1,
+                             24-1, 23-1, # two 1's
+                             21-1, 19-1, 17-1, 15-1, 13-1, 11-1, # 6 2's
+                             10-1, # 1 1
+                             8-1, 6-1, 4-1, 2-1, 28-1, 26-1, # 6 2's
+                             25-1 # 1 1
+                             )
+        self.assertTrue(len(expected_bits_set) == 17)
+
+        # now calculate expected bits set in the derived keys
+        expected_bits_set_2 = (None,
+                               4-1, 13-1, 11-1, 14-1, 2-1, 9-1, 23-1, 3-1,
+                               12-1, 18-1, 10-1, 16-1, 24-1, 8-1, 17-1, None
+                               )
+
+        self.assertTrue(len(key.derived_keys.keys()) == 16)
+        for i in range(1, 16+1):
+            derived_key = key.derived_keys[i]
+            self.assertTrue(len(derived_key) == 48)
+            for j in range(0, 48):
+                bool = derived_key[j]
+                if j == expected_bits_set_2[i]:
+                    self.assertTrue(bool)
+                else:
+                    self.assertFalse(bool)
+
+        pass
+
+    def test_deskey_key_mapping_tuple(self):
+        key = DESKey.DESKey("0101010101010110")
+        self.assertTrue(len(key.KEY_MAPPING_TUPLE) == 48)
+
+        expected_missing_list = [9, 18, 22, 25, 35, 38, 43, 54]
+        actual_missing_list = []
+        for i in range(1, 56+1):
+            if i not in key.KEY_MAPPING_TUPLE:
+                actual_missing_list.append(i)
+        self.assertTrue(len(actual_missing_list) == len(expected_missing_list))
+        for el in expected_missing_list:
+            self.assertTrue(el in actual_missing_list)
+
     def test_deskey_derive_cd(self):
         # using same stuff as previous test - since if it is in C
         # then there will be no offset
