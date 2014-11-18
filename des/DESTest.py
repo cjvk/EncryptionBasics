@@ -10,6 +10,34 @@ class DESTest(unittest.TestCase):
     def setUp(self):
         pass
 
+    def test_deskey_derive_cd(self):
+        # using same stuff as previous test - since if it is in C
+        # then there will be no offset
+        key = DESKey.DESKey("0101010101010110")
+        # 60th bit mapped to 25th in k_plus which is in C
+        expected_bits_set = (25-1,
+                             24-1, 23-1, # two 1's
+                             21-1, 19-1, 17-1, 15-1, 13-1, 11-1, # 6 2's
+                             10-1, # 1 1
+                             8-1, 6-1, 4-1, 2-1, 28-1, 26-1, # 6 2's
+                             25-1 # 1 1
+                             )
+        self.assertTrue(len(expected_bits_set) == 17)
+
+        cd_keys = key.cd.keys()
+        self.assertTrue(len(cd_keys) == 16)
+
+        for i in range(1, 16+1):
+            self.assertTrue(i in cd_keys)
+            cd_key = key.cd[i]
+            for j in range(0, len(cd_key)):
+                bool = cd_key[j]
+                if j == expected_bits_set[i]:
+                    self.assertTrue(bool)
+                else:
+                    self.assertFalse(bool)
+                
+
     def test_deskey_derived_c_d_2(self):
         key = DESKey.DESKey("0101010101010110")
         # 60th bit mapped to 25th in k_plus which is in C

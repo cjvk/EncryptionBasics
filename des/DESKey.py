@@ -17,7 +17,19 @@ class DESKey():
         self.m_key_bit_tuple = self.m_hex.hex_string_to_bit_tuple(self.m_key)
         self.k_plus = self.derive_k_plus()
         self.c, self.d = self.derive_c_d_1_16()
+        self.cd = self.derive_cd()
         pass
+    def derive_cd(self):
+        CD = {}
+        for i in range(1, len(self.c)):
+            # don't want to use zeroth element
+            CD[i] = self.c[i] + self.d[i]
+        # we ok?
+        keys = CD.keys()
+        assert(len(keys) == 16)
+        for i in range(1,16+1):
+            assert(i in keys)
+        return CD
     C_D_LEFTSHIFT_TUPLE = ("unused",1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1)
     def derive_c_d_1_16(self):
         # initializec and d
@@ -33,6 +45,7 @@ class DESKey():
             D[i] = self.left_shift(D[i-1], shift_amount)
         assert(None not in C)
         assert(None not in D)
+        assert(len(C) == len(D))
         return C, D
     def left_shift(self, bit_tuple, num):
         shifted_tuple = bit_tuple[num:] + bit_tuple[0:num]
