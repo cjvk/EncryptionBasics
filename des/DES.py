@@ -13,7 +13,7 @@ def des_encrypt (block, key):
     # validation
     DESEncryptValidator.DESEncryptValidator().validate(block, key)
 
-    unused = DESKey.DESKey(key)
+    key = DESKey.DESKey(key)
     
     return
 
