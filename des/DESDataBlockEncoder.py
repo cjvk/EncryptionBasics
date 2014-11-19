@@ -25,11 +25,13 @@ class DESDataBlockEncoder:
         for element in self.data_block_bools:
             assert(type(element) is bool)
         self.ip = self.derive_ip()
-        self.L, self.R = self.derive_l_r(self.des_key.derived_keys)
-        self.R16L16 = self.derive_r16l16()
-        self.encrypted_data_block_bools = self.IPminus1(self.R16L16)
-        self.encrypted_data_block = Hexadecimal.Hexadecimal().bit_tuple_to_hex_string(tuple(self.encrypted_data_block_bools))
-        pass
+
+    def encrypt(self):
+        L, R = self.derive_l_r(self.des_key.derived_keys)
+        R16L16 = R[16] + L[16]
+        encrypted_data_block_bools = self.IPminus1(R16L16)
+        encrypted_data_block = Hexadecimal.Hexadecimal().bit_tuple_to_hex_string(tuple(encrypted_data_block_bools))
+        return encrypted_data_block
 
     def decrypt(self):
         decryptL, decryptR = self.derive_l_r(self.des_key.derived_keys_reverse)

@@ -20,7 +20,7 @@ class DES:
         # validation
         DESEncryptValidator.DESEncryptValidator().validate(block, self.key)
         encoder = DESDataBlockEncoder.DESDataBlockEncoder(block, self.des_key)
-        return encoder.encrypted_data_block
+        return encoder.encrypt()
 
     def decrypt(self, block):
         DESEncryptValidator.DESEncryptValidator().validate(block, self.key)
