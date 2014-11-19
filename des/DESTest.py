@@ -2,6 +2,7 @@ import DES
 import Hexadecimal
 import DESEncryptValidator
 import DESKey
+import DESDataBlockEncoder
 
 import unittest
 
@@ -9,6 +10,47 @@ class DESTest(unittest.TestCase):
 
     def setUp(self):
         pass
+
+    def test_encoder_P(self):
+        encoder = DESDataBlockEncoder.DESDataBlockEncoder("0000000000000000", DESKey.DESKey("0101010101010101"))
+        p = encoder.FINAL_P_TRANSFORM
+        self.assertTrue(len(p) == 32)
+
+        for i in range(1, 32+1):
+            self.assertTrue(i in p)
+
+    def test_encoder_E(self):
+        encoder = DESDataBlockEncoder.DESDataBlockEncoder("0000000000000000", DESKey.DESKey("0101010101010101"))
+        e = encoder.E_MAPPER
+        self.assertTrue(len(e) == 48)
+
+        # does it have all numbers 1-32?
+        for i in range(1, 32+1):
+            self.assertTrue(i in e)
+
+        # does it have the expected duplicate property?
+        count_dict = {}
+        for i in range(1, 32+1):
+            count_dict[i] = 0
+        for element in e:
+            count_dict[element] = count_dict[element] + 1
+
+        expected_twos = [32, 1, 4, 5, 8, 9, 12, 13, 16, 17, 20, 21, 24, 25, 28, 29]
+
+        for i in range(1, 32+1):
+            if i not in expected_twos:
+                self.assertTrue(count_dict[i] == 1)
+            else:
+                self.assertTrue(count_dict[i] == 2)
+
+    def test_encoder_IP(self):
+        encoder = DESDataBlockEncoder.DESDataBlockEncoder("0000000000000000", DESKey.DESKey("0101010101010101"))
+        ip = encoder.IP_PERMUTATION
+        self.assertTrue(len(ip) == 64)
+
+        # does it have all numbers 1-64?
+        for i in range(1, 64+1):
+            self.assertTrue(i in ip)
 
     def test_deskey_key_mapping_tuple_2(self):
         # using same stuff as previous test - since if it is in C

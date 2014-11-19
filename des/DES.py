@@ -1,6 +1,7 @@
 import Hexadecimal
 import DESEncryptValidator
 import DESKey
+import DESDataBlockEncoder
 
 def des_encrypt (block, key):
     """
@@ -13,7 +14,9 @@ def des_encrypt (block, key):
     # validation
     DESEncryptValidator.DESEncryptValidator().validate(block, key)
 
-    key = DESKey.DESKey(key)
+    des_key = DESKey.DESKey(key)
+
+    encoder = DESDataBlockEncoder.DESDataBlockEncoder(block, des_key)
     
     return
 
