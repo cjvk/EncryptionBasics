@@ -28,6 +28,51 @@ class Hexadecimal():
         'F' : (True , True , True , True ),
         }
 
+    INT_TO_HEX_DIGIT = {
+        0 : '0',
+        1 : '1',
+        2 : '2',
+        3 : '3',
+        4 : '4',
+        5 : '5',
+        6 : '6',
+        7 : '7',
+        8 : '8',
+        9 : '9',
+        10: 'A',
+        11: 'B',
+        12: 'C',
+        13: 'D',
+        14: 'E',
+        15: 'F'
+        }
+
+    HEX_DIGIT_TO_INT = {
+        '0' : 0,
+        '1' : 1,
+        '2' : 2,
+        '3' : 3,
+        '4' : 4,
+        '5' : 5,
+        '6' : 6,
+        '7' : 7,
+        '8' : 8,
+        '9' : 9,
+        'A' : 10,
+        'a' : 10,
+        'B' : 11,
+        'b' : 11,
+        'C' : 12,
+        'c' : 12,
+        'D' : 13,
+        'd' : 13,
+        'E' : 14,
+        'e' : 14,
+        'F' : 15,
+        'f' : 15
+        }
+
+
     def bit_tuple_to_hex_string(self, bit_tuple):
         # validation
         if not isinstance(bit_tuple, tuple):
@@ -38,7 +83,7 @@ class Hexadecimal():
         length = len(bit_tuple)
         newlength = (length / 4) * 4
         if not length == newlength:
-            raise ValueError
+            raise ValueError("Length=%s, newlength=%s" % (str(length), str(newlength)))
         hex_string = ''
 
         while len(bit_tuple) > 0:
@@ -59,5 +104,6 @@ class Hexadecimal():
         for i in range(0, len(hex_string_uppercase)):
             bit_tuple = bit_tuple + self.MAPPING[hex_string_uppercase[i]]
 
+        assert(type(bit_tuple) is tuple)
         return bit_tuple
 

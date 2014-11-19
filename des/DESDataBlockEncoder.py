@@ -22,9 +22,43 @@ class DESDataBlockEncoder:
 
     def derived_data(self):
         self.data_block_bools = Hexadecimal.Hexadecimal().hex_string_to_bit_tuple(self.data_block)
+        for element in self.data_block_bools:
+            assert(type(element) is bool)
         self.ip = self.derive_ip()
         self.L, self.R = self.derive_l_r()
+        self.R16L16 = self.derive_r16l16()
+        self.encrypted_data_block_bools = self.IPminus1()
+        self.encrypted_data_block = Hexadecimal.Hexadecimal().bit_tuple_to_hex_string(tuple(self.encrypted_data_block_bools))
         pass
+
+    def IPminus1(self):
+        answer = []
+        for position in self.IP_MINUS_ONE:
+            correct_index = position - 1
+            answer.append(self.R16L16[correct_index])
+        assert(len(answer) == 64)
+        for element in answer:
+            assert(type(element) is bool)
+        return answer
+
+    IP_MINUS_ONE = [
+        40, 8, 48, 16, 56, 24, 64, 32,
+        39, 7, 47, 15, 55, 23, 63, 31,
+        38, 6, 46, 14, 54, 22, 62, 30,
+        37, 5, 45, 13, 53, 21, 61, 29,
+        36, 4, 44, 12, 52, 20, 60, 28,
+        35, 3, 43, 11, 51, 19, 59, 27,
+        34, 2, 42, 10, 50, 18, 58, 26,
+        33, 1, 41,  9, 49, 17, 57, 25
+        ]
+
+    def derive_r16l16(self):
+        r16l16 = self.R[16] + self.L[16]
+        assert(len(r16l16) == 64)
+        for element in r16l16:
+            assert(type(element) is bool)
+        return r16l16
+        
 
     def derive_l_r(self):
         L = [None] * 17
@@ -33,7 +67,6 @@ class DESDataBlockEncoder:
         R[0] = self.ip[32:64]
         for i in range(1, 17):
             L[i] = R[i-1]
-            # R[i] = L[i-1]
             R[i] = self.calculate_next_r(L[i-1], R[i-1], self.des_key.derived_keys[i])
         assert(None not in L)
         assert(None not in R)
@@ -133,6 +166,9 @@ class DESDataBlockEncoder:
         for index in self.IP_PERMUTATION:
             correct_index = index - 1
             ip.append(self.data_block_bools[correct_index])
+        for element in ip:
+            #assert(type(element) == 'bool')
+            pass
         return ip
 
     IP_PERMUTATION = (

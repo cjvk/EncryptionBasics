@@ -17,6 +17,8 @@ def des_encrypt (block, key):
     des_key = DESKey.DESKey(key)
 
     encoder = DESDataBlockEncoder.DESDataBlockEncoder(block, des_key)
+
+    return encoder.encrypted_data_block
     
     return
 

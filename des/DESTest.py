@@ -3,6 +3,7 @@ import Hexadecimal
 import DESEncryptValidator
 import DESKey
 import DESDataBlockEncoder
+import DESSBlock
 
 import unittest
 
@@ -10,6 +11,53 @@ class DESTest(unittest.TestCase):
 
     def setUp(self):
         pass
+
+    def test_des_encrypt(self):
+        tests = [
+            # key, block, expected encrypted block
+            ["133457799BBCDFF1", "0123456789ABCDEF", "85E813540F0AB405"],
+            # above entry from main tutorial page
+            # also verified against http://des.online-domain-tools.com/
+            # subsequent entries only from this URL
+            ["133457799BBCDFF1", "ee0f7c12e0b09338", "0123456789ABCDEF"],
+            ["0101010101010101", "9282018a7d6b7f9e", "ff94ccd4ab94576b"],
+            ["0101010101010101", "8c6e5ddba1124956", "32ea95f83ccc01e2"],
+            ["0101010101010101", "0000000000000000", "8ca64de9c1b123a7"],
+            ["0101010101010101", "8ca64de9c1b123a7", "0000000000000000"], # interesting
+            ]
+
+        for test in tests:
+            key = test[0]
+            block = test[1]
+            expected_ciphertext = test[2]
+            actual_ciphertext = DES.des_encrypt(block, key)
+            self.assertTrue(expected_ciphertext.upper() == actual_ciphertext)
+
+    def test_encoder_IP_minus_1(self):
+        encoder = DESDataBlockEncoder.DESDataBlockEncoder("0000000000000000", DESKey.DESKey("0101010101010101"))
+        p = encoder.IP_MINUS_ONE
+        self.assertTrue(len(p) == 64)
+        for i in range(1, 64+1):
+            self.assertTrue(i in p)
+
+    def test_dessblock_TWO_BIT_TO_INT(self):
+        sblock = DESSBlock.DESSBlock(1)
+
+        d = sblock.TWO_BIT_TO_INT
+        self.assertTrue(d[(False, False)] == 0)
+        self.assertTrue(d[(True, False)] == 2)
+
+    def test_dessblock_ALL_S_BLOCKS(self):
+        sblock = DESSBlock.DESSBlock(1)
+
+        all_block_numbers = [1, 2, 3, 4, 5, 6, 7, 8]
+        for block_number in all_block_numbers:
+            entry = sblock.ALL_S_BLOCKS[block_number]
+            for i in range(0, 4):
+                subarray = entry[i]
+                self.assertTrue(len(subarray) == 16, msg='block %i, i=%i' % (block_number, i))
+                for j in range(0, 16):
+                    self.assertTrue(j in subarray, msg='j=%i' % j)
 
     def test_encoder_P(self):
         encoder = DESDataBlockEncoder.DESDataBlockEncoder("0000000000000000", DESKey.DESKey("0101010101010101"))
@@ -227,9 +275,6 @@ class DESTest(unittest.TestCase):
         # [key, plaintext, ciphertext], all hex-encoded
         ['0E329232EA6D0D73', '8787878787878787', '0000000000000000'],
         ]
-
-    def test_des_encrypt(self):
-        pass
 
     def test_hexadecimal_bit_to_string(self):
         tests = [
