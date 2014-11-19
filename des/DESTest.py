@@ -12,6 +12,47 @@ class DESTest(unittest.TestCase):
     def setUp(self):
         pass
 
+    def test_des_encrypt_decrypt(self):
+        # just going to test that decrypt reverses encrypt
+        tests = [
+            # key, block
+            ["0101010101010110", "8271639483726453"],
+            ["1010101010100101", "abcdeabcdefcedfe"],
+            ["8080808080800808", "8d7c6f5e6d7c8f7d"],
+            ["133457799BBCDFF1", "001011234736dfec"],
+            ["133457799BBCDFF1", "9c9d8e848f8f8f8f"],
+            ]
+
+        for test in tests:
+            key = test[0]
+            block = test[1]
+            des = DES.DES(key)
+            ciphertext = des.encrypt(block)
+            decryption = des.decrypt(block)
+
+    def test_des_encrypt_zero_key(self):
+        # as noticed below, with the zero key, all 16 derived keys are zero
+        # so it is not surprising that reversing them has no effect
+        # so encryption == decryption
+        tests = [
+            "8271639483726453",
+            "abcdeabcdefcedfe",
+            "8d7c6f5e6d7c8f7d",
+            "001011234736dfec",
+            "9c9d8e848f8f8f8f",
+            "7d7d7d7d7d7d7d7d",
+            "0010110010101110",
+            "1111111111111111",
+            ]
+
+        key = "0101010101010101"
+        des = DES.DES(key)
+
+        for block in tests:
+            ciphertext = des.encrypt(block)
+            again = des.encrypt(ciphertext)
+            self.assertTrue(block.upper() == again.upper())
+
     def test_des_encrypt(self):
         tests = [
             # key, block, expected encrypted block
@@ -28,9 +69,10 @@ class DESTest(unittest.TestCase):
 
         for test in tests:
             key = test[0]
+            des = DES.DES(key)
             block = test[1]
             expected_ciphertext = test[2]
-            actual_ciphertext = DES.des_encrypt(block, key)
+            actual_ciphertext = des.encrypt(block)
             self.assertTrue(expected_ciphertext.upper() == actual_ciphertext)
 
     def test_encoder_IP_minus_1(self):
@@ -340,7 +382,8 @@ class DESTest(unittest.TestCase):
         for i_unused, happy_test in enumerate(happy_tests):
             block = happy_test[0]
             key = happy_test[1]
-            DES.des_encrypt(block, key)
+            des = DES.DES(key)
+            des.encrypt(block)
             
         expected_exception_tests = [
             ["1", "2"],
@@ -351,7 +394,8 @@ class DESTest(unittest.TestCase):
             block = expected_exception_test[0]
             key = expected_exception_test[1]
             try:
-                DES.des_encrypt(block, key)
+                des = DES.DES(key)
+                des.encrypt(block)
                 assert False, "expected an exception"
             except ValueError:
                 pass

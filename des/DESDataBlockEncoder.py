@@ -25,17 +25,25 @@ class DESDataBlockEncoder:
         for element in self.data_block_bools:
             assert(type(element) is bool)
         self.ip = self.derive_ip()
-        self.L, self.R = self.derive_l_r()
+        self.L, self.R = self.derive_l_r(self.des_key.derived_keys)
         self.R16L16 = self.derive_r16l16()
-        self.encrypted_data_block_bools = self.IPminus1()
+        self.encrypted_data_block_bools = self.IPminus1(self.R16L16)
         self.encrypted_data_block = Hexadecimal.Hexadecimal().bit_tuple_to_hex_string(tuple(self.encrypted_data_block_bools))
         pass
 
-    def IPminus1(self):
+    def decrypt(self):
+        decryptL, decryptR = self.derive_l_r(self.des_key.derived_keys_reverse)
+        decryptR16L16 = decryptR[16] + decryptL[16]
+        decrypted_data_block_bools = self.IPminus1(decryptR16L16)
+        decrypted_data_block = Hexadecimal.Hexadecimal().bit_tuple_to_hex_string(tuple(decrypted_data_block_bools))
+        return decrypted_data_block
+
+    def IPminus1(self, source):
         answer = []
         for position in self.IP_MINUS_ONE:
             correct_index = position - 1
-            answer.append(self.R16L16[correct_index])
+            # answer.append(self.R16L16[correct_index])
+            answer.append(source[correct_index])
         assert(len(answer) == 64)
         for element in answer:
             assert(type(element) is bool)
@@ -60,14 +68,14 @@ class DESDataBlockEncoder:
         return r16l16
         
 
-    def derive_l_r(self):
+    def derive_l_r(self, keydict):
         L = [None] * 17
         R = [None] * 17
         L[0] = self.ip[0:32]
         R[0] = self.ip[32:64]
         for i in range(1, 17):
             L[i] = R[i-1]
-            R[i] = self.calculate_next_r(L[i-1], R[i-1], self.des_key.derived_keys[i])
+            R[i] = self.calculate_next_r(L[i-1], R[i-1], keydict[i])
         assert(None not in L)
         assert(None not in R)
 

@@ -19,7 +19,13 @@ class DESKey():
         self.c, self.d = self.derive_c_d_1_16()
         self.cd = self.derive_cd()
         self.derived_keys = self.derive_keys()
+        self.derived_keys_reverse = self.derive_keys_reverse()
         pass
+    def derive_keys_reverse(self):
+        derived_key_reverse_dict = {}
+        for i in range(1, 16+1):
+            derived_key_reverse_dict[i] = self.derived_keys[17-i]
+        return derived_key_reverse_dict
     def derive_keys(self):
         derived_key_dict = {}
         for i in range(1, 16+1):
