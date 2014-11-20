@@ -28,7 +28,8 @@ class DESTest(unittest.TestCase):
             block = test[1]
             des = DES.DES(key)
             ciphertext = des.encrypt(block)
-            decryption = des.decrypt(block)
+            decryption = des.decrypt(ciphertext)
+            self.assertTrue(block.upper() == decryption.upper())
 
     def test_des_encrypt_zero_key(self):
         # as noticed below, with the zero key, all 16 derived keys are zero
